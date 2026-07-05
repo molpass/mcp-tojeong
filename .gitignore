@@ -1,0 +1,9 @@
+node_modules/
+
+# 스크래치·검증 임시 파일
+scratch-*.mjs
+
+# 작업용 원본 데이터 폴더 — 레포 마스터는 data/tojeong_144.json 단일본.
+# (V1 구버전은 로컬 보존만, 레포에 올리지 않음)
+tojeong_144_oldver/
+tojeong_144_newver/
