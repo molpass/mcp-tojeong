@@ -1,9 +1,16 @@
-# 토정비결 MCP (tojeong-mcp)
+# 토정비결 MCP (mcp-tojeong)
 
 생년월일로 해당 연도의 **토정비결(土亭祕訣)** 운세를 조회하는 MCP 서버.
 작괘(作卦)로 3자리 괘(卦)를 산출하고, 그 괘의 **총운(總運)** 과 **12개월 월별운** 원문을 그대로 반환한다.
+헤르메스(Hermes) 에이전트·텔레그램 연동을 염두에 둔 **결정론(deterministic)·외부 API 0·오프라인** 서버.
 
 > **데이터 전용 서버.** 해석·조언·페르소나는 이 서버가 만들지 않는다. 결정론적 구조화 데이터만 반환하며, 해석은 상위 레이어(SKILL/LLM)의 몫이다. 시(時)는 사용하지 않는다.
+
+## 원칙
+- **결정론.** 같은 생년월일·같은 당년 → 항상 같은 괘·같은 운세. 난수·추정·시각 의존 없음.
+- **외부 API 0.** 음양력 변환·간지 산출까지 전부 로컬. 어떤 입력도 외부로 내보내지 않는다.
+- **순수 데이터.** 원문(총운·월별운)만 반환하고 의미 부여는 하지 않는다 — 해석은 상위 레이어(AI/SKILL) 몫.
+- **검증 가능.** 조견표(수리)는 임의 나열이 아니라 표준 수표에서 산출되며, 테스트가 "생성 표 = 공식 = 공개 대조표"를 강제한다.
 
 ## 작괘(作卦) 공식
 
@@ -89,6 +96,25 @@ Claude Desktop `claude_desktop_config.json` 또는 헤르메스 에이전트 MCP
 
 144괘 한글 해석문은 개인 소장 자료(1998)를 기반으로 현대 맞춤법으로 윤문한 것이다. 데이터 구조: `{ "<괘코드>": { code, chongun, months } }`.
 
+## 면책
+
+토정비결은 조선 후기부터 이어진 세시풍속(歲時風俗)으로, 이 서버가 반환하는 운세는 **재미·참고용 전통 텍스트**이며 미래를 예측하거나 보장하지 않는다(과학적 사실 아님·운명론 아님). 중요한 의사결정의 근거로 삼지 말 것.
+
+## About / 제작
+
+**Hermes Agent용 MCP** — molpass의 바이브 코딩(vibe coding) 프로젝트.
+
+- 아이디어·방향: **molpass (이정훈)** · https://zeolinex.com
+- 기획: **Claude (Chat)**
+- 개발: **Claude Code**
+
+같은 모음:
+- [mcp-saju](https://github.com/molpass/mcp-saju) · [mcp-qr](https://github.com/molpass/mcp-qr) · [mcp-biorhythm](https://github.com/molpass/mcp-biorhythm) · [mcp-astrology](https://github.com/molpass/mcp-astrology) · [mcp-ziwei](https://github.com/molpass/mcp-ziwei) · [mcp-numerology](https://github.com/molpass/mcp-numerology) · [mcp-liuren](https://github.com/molpass/mcp-liuren) · [mcp-qimen](https://github.com/molpass/mcp-qimen) · [mcp-taiyi](https://github.com/molpass/mcp-taiyi) · [mcp-weather](https://github.com/molpass/mcp-weather) · [mcp-newsfeed](https://github.com/molpass/mcp-newsfeed) · [mcp-bible](https://github.com/molpass/mcp-bible) · [mcp-gwansang](https://github.com/molpass/mcp-gwansang) · [mcp-lotto](https://github.com/molpass/mcp-lotto)
+- **mcp-tojeong** (이 repo)
+
 ## 라이선스
 
-MIT © molpass
+MIT © molpass (코드·해석문 윤문).
+
+- 음양력·간지 산출: [`korean-lunar-calendar`](https://www.npmjs.com/package/korean-lunar-calendar) (MIT).
+- 조견표 수표는 위 [출처](#조견표早見表--수리-산출과-출처)의 공개 자료를 교차 검증해 재산출.
