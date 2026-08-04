@@ -12,6 +12,7 @@ import {
   resolveChart,
   solarToLunar,
   lunarToSolar,
+  lunarMonthDays,
 } from "../src/ganji.js";
 import { makeGwae, upperGwae, middleGwae, lowerGwae } from "../src/calc.js";
 
@@ -38,13 +39,30 @@ test("§6-1 공개 예시: 음1976-08-26 / 2005 → 괘 212", () => {
   assert.deepEqual(gwae, { sang: 2, jung: 1, ha: 2, code: "212" });
 });
 
-// badukworld 독립 예시: 음1975-07-25생, 당년 2024(甲辰) → 괘 861
-test("독립 예시(baduk): 음1975-07-25 / 2024 → 괘 861", () => {
+// badukworld 독립 예시: 음1975-07-25생, 당년 2024(甲辰)
+//
+// ★ 기대값을 861 → 811 로 교정했다(2026-08-04). **원 예시를 지우지 않고 교정 근거를 붙인다.**
+//
+//   전거 — 한국민족문화대백과사전(한국학중앙연구원) '토정비결' 항목의 작괘법 원문:
+//     "당년 생월수를 놓되 달이 크면 30이요, 달이 적으면 29를 놓고 거기에 다시 생월의
+//      월건수를 놓은 다음 6으로 제하고 남은 수로 중괘를 만든다."
+//   즉 중괘의 날수는 **당년 생월의 실제 대소**다.
+//
+//   2024년 음 7월은 대월(30일)이다 — 한국 기준(KASI)·중국 기준 두 표가 일치한다.
+//   그런데 861 이 나오려면 날수가 29 여야 한다. 원 예시가 29 를 쓴 것이고,
+//   이 레포의 `lunarMonthDays()` 도 인자 누락으로 언제나 29 를 냈다 —
+//   **결함과 예시가 같은 뿌리였고**, 예시에 맞춰 통과하던 테스트였다.
+//   날수를 바로잡으면 중괘가 6 → 1 로 옮겨 괘가 811 이 된다.
+//   (나머지 자리는 그대로다: 상괘 8 · 하괘 1 · 태세 甲辰 · 월건 壬申 · 일진 甲子.)
+//
+//   발견: zeostest 가 이 엔진을 PHP 로 이식하며 세운 등가 게이트.
+test("독립 예시(baduk, 날수 교정): 음1975-07-25 / 2024 → 괘 811", () => {
   const chart = resolveChart({ year: 1975, month: 7, day: 25 }, 2024);
   assert.equal(chart.koreanAge, 50);
   assert.equal(chart.taese.ganji, "甲辰");
   assert.equal(chart.wolgeon.ganji, "壬申");
   assert.equal(chart.iljin.ganji, "甲子");
+  assert.equal(chart.monthDays, 30, "2024 음7월은 대월(30) — 이 값이 29로 돌아가면 결함 재발이다");
   const gwae = makeGwae({
     koreanAge: chart.koreanAge,
     taeseValue: chart.taese.value,
@@ -53,7 +71,18 @@ test("독립 예시(baduk): 음1975-07-25 / 2024 → 괘 861", () => {
     birthDay: 25,
     iljinValue: chart.iljin.value,
   });
-  assert.equal(gwae.code, "861");
+  assert.equal(gwae.code, "811");
+});
+
+// 날수가 실제로 갈리는지 — 결함이 돌아오면 이 테스트가 먼저 터진다.
+// (인자 없이 부르면 언제나 29 라, 값의 종류가 하나뿐인 것이 그 결함의 지문이다.)
+test("날수는 대월/소월을 실제로 가른다", () => {
+  assert.equal(lunarMonthDays(2024, 7), 30, "2024 음7월 = 대월");
+  assert.equal(lunarMonthDays(2005, 8), 29, "2005 음8월 = 소월");
+  assert.equal(lunarMonthDays(2026, 1), 30, "2026 음1월 = 대월");
+  const kinds = new Set([2024, 2025, 2026].flatMap((y) =>
+    Array.from({ length: 12 }, (_, i) => lunarMonthDays(y, i + 1))));
+  assert.deepEqual([...kinds].sort(), [29, 30], "29 하나만 나오면 인자 누락 결함이다");
 });
 
 // 말일 클램프: 당년 생월이 소월(29)인데 생일 30일 → 29로 당기고 dayClamped 기록

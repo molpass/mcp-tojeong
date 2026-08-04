@@ -73,12 +73,19 @@ export function lunarToSolar(year, month, day, isLeap = false) {
 }
 
 // 해당 음력 월의 날수(대월 30 / 소월 29).
+//
+// ★ 인자를 반드시 넘긴다. `getLunarMonthDays()` 는 (year, month, isIntercalation) 을 받는데,
+//   인자 없이 부르면 내부에서 NaN 경로로 떨어져 **언제나 소월(29)** 을 돌려준다 —
+//   설정해 둔 날짜를 참조하지 않는다. 그래서 이 함수가 오래도록 29 하나만 냈고,
+//   중괘 = (날수 + 월건수) % 6 이라 **당년 생월이 대월(30)인 사람의 중괘가 한 칸 어긋났다.**
+//   README 의 작괘 공식("날수 = 대월이면 30, 소월이면 29")과 코드가 갈려 있던 자리다.
+//   발견: zeostest 가 이 엔진을 PHP 로 이식하며 세운 등가 게이트(2026-08-04).
 export function lunarMonthDays(year, month, isLeap = false) {
   const c = new KLC();
   if (!c.setLunarDate(year, month, 1, isLeap)) {
     throw new Error(`유효하지 않은 음력 월: ${year}-${month} (윤달=${isLeap})`);
   }
-  return c.getLunarMonthDays();
+  return c.getLunarMonthDays(year, month, isLeap);
 }
 
 // 작괘에 필요한 수리 일체를 산출한다.
